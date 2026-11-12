@@ -1,0 +1,33 @@
+title: XMRig Loader Service Installation (msntsvcs)
+id: c6afc4e4-586c-43a8-9645-dd9e2c1ce632
+status: experimental
+description: |
+    IOC rule for a specific XMRig loader that persists as a LocalSystem service
+    named "msntsvcs" (display name "COM+ Softwares System") hosted in its own
+    svchost group. Use for fleet-wide scoping and to find the earliest install
+    time and installing account.
+references:
+    - https://attack.mitre.org/techniques/T1543/003/
+    - https://attack.mitre.org/techniques/T1496/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.persistence
+    - attack.t1543.003
+    - attack.impact
+    - attack.t1496
+logsource:
+    product: windows
+    service: system
+detection:
+    selection_event:
+        Provider_Name: 'Service Control Manager'
+        EventID: 7045
+    selection_ioc:
+        - ServiceName: 'msntsvcs'
+        - ServiceName: 'COM+ Softwares System'
+        - ImagePath|contains: '-k msntsvcs'
+    condition: selection_event and selection_ioc
+falsepositives:
+    - None known
+level: critical

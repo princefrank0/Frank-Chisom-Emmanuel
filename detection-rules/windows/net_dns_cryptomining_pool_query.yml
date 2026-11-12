@@ -1,0 +1,31 @@
+title: DNS Query To Cryptomining Pool Domain
+id: 834f4a72-2227-43c4-9769-5203b30a187e
+status: experimental
+description: |
+    Detects DNS queries for well-known Monero mining pool domains. Mining over
+    TLS on port 443 hides the Stratum protocol from network inspection, so the
+    DNS lookup is often the most reliable network signal.
+references:
+    - https://attack.mitre.org/techniques/T1496/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.impact
+    - attack.t1496
+logsource:
+    category: dns
+detection:
+    selection:
+        query|contains:
+            - 'moneropool.com'
+            - 'supportxmr.com'
+            - 'nanopool.org'
+            - 'minexmr.com'
+            - 'hashvault.pro'
+            - 'c3pool.com'
+            - 'moneroocean.stream'
+            - '2miners.com'
+    condition: selection
+falsepositives:
+    - Security research or sanctioned mining activity
+level: high

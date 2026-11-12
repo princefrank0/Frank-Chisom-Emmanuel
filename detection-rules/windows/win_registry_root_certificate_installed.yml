@@ -1,0 +1,33 @@
+title: Root Certificate Installed By Non-System Process
+id: 61c70620-42ec-45a6-85e2-6822b4cc410c
+status: experimental
+description: |
+    Detects a certificate being added to the Trusted Root store by a process
+    other than the Windows certificate services. A traffic-injecting proxy must
+    install its own root CA to intercept HTTPS without browser warnings.
+references:
+    - https://attack.mitre.org/techniques/T1553/004/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.defense-evasion
+    - attack.t1553.004
+logsource:
+    product: windows
+    category: registry_set
+detection:
+    selection:
+        TargetObject|contains:
+            - '\SOFTWARE\Microsoft\SystemCertificates\Root\Certificates\'
+            - '\SOFTWARE\Policies\Microsoft\SystemCertificates\Root\Certificates\'
+            - '\SOFTWARE\Microsoft\EnterpriseCertificates\Root\Certificates\'
+    filter_system:
+        Image:
+            - 'C:\Windows\System32\svchost.exe'
+            - 'C:\Windows\System32\lsass.exe'
+            - 'C:\Windows\System32\services.exe'
+    condition: selection and not filter_system
+falsepositives:
+    - Enterprise PKI rollout tools
+    - Security products that perform TLS inspection
+level: high

@@ -1,0 +1,37 @@
+title: Linux Account Login Shell Changed
+id: 12a6bad6-24da-4e8d-8e34-11ee728f5167
+status: experimental
+description: |
+    Detects usermod changing an account's login shell. A change to /sbin/nologin
+    or /bin/false usually means offboarding or hardening. A change from a
+    non-interactive shell to an interactive one can turn a service account into
+    a login account.
+
+    Triage note: the usermod syslog line gives the binary and PID only. It does
+    not show who ran it or whether it was manual or automated. Correlate with
+    sudo and session events in the preceding minutes, or use the auditd "auid"
+    field, which survives privilege escalation and names the originating user.
+references:
+    - https://attack.mitre.org/techniques/T1098/
+    - https://attack.mitre.org/techniques/T1531/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.persistence
+    - attack.t1098
+    - attack.impact
+    - attack.t1531
+logsource:
+    product: linux
+    service: auth
+detection:
+    keywords:
+        '|all':
+            - 'usermod'
+            - 'change user'
+            - 'shell from'
+    condition: keywords
+falsepositives:
+    - Approved offboarding and account hardening. Match against change records.
+    - Configuration management (Ansible, Puppet) enforcing account state
+level: medium

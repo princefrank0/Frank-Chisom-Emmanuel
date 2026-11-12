@@ -1,0 +1,50 @@
+title: MSSQL Extended Stored Procedure Run By Unapproved Account
+id: 85fb8614-a783-4bd4-b6bc-5379ee00d2b3
+status: experimental
+description: |
+    Detects execution of MSSQL extended stored procedures and server
+    reconnaissance commands, as recorded by Imperva SecureSphere DAM audit
+    events (CEF, Audit.DAM), from any account other than the approved
+    monitoring service accounts.
+
+    Baseline finding behind this rule: almost all xp_ activity in production
+    came from one monitoring agent on one source address. Excluding that pair
+    left a small number of events from an administrative account using ad-hoc
+    scripted connections, which is what the rule is meant to surface.
+
+    Field mapping (CEF to Sigma): duser = DatabaseUser, src = SourceIp,
+    cs10 = SourceApplication, cs15 = RawQuery, cs13 = Database.
+references:
+    - https://attack.mitre.org/techniques/T1505/001/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.persistence
+    - attack.t1505.001
+    - attack.discovery
+    - attack.t1082
+pci_dss:
+    - '10.2.1.2'
+    - '10.4.1.1'
+logsource:
+    product: imperva
+    service: securesphere_dam
+detection:
+    selection:
+        RawQuery|contains:
+            - 'xp_cmdshell'
+            - 'xp_loginconfig'
+            - 'xp_readerrorlog'
+            - 'xp_regread'
+            - 'xp_dirtree'
+            - 'xp_fileexist'
+            - 'sp_configure'
+            - 'restore headeronly'
+    filter_monitoring:
+        # Replace with the approved monitoring account and its fixed source
+        DatabaseUser: 'svc_db_monitor'
+        SourceIp: '192.0.2.10'
+    condition: selection and not filter_monitoring
+falsepositives:
+    - DBA maintenance from accounts not yet added to the approved list
+level: high

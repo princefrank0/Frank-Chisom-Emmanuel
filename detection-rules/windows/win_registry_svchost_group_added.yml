@@ -1,0 +1,32 @@
+title: New Svchost Service Group Registered
+id: a08ef159-1737-4b11-8863-ed2b3b18166f
+status: experimental
+description: |
+    Detects a new value written under the Svchost key, which defines the service
+    groups that "svchost.exe -k <group>" will host. The set of groups is stable
+    after a machine is built. A new group that contains a single unfamiliar
+    service is a strong sign of a ServiceDll implant.
+references:
+    - https://attack.mitre.org/techniques/T1543/003/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.persistence
+    - attack.privilege-escalation
+    - attack.t1543.003
+logsource:
+    product: windows
+    category: registry_set
+detection:
+    selection:
+        TargetObject|contains: '\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Svchost\'
+    filter_installers:
+        Image|endswith:
+            - '\TiWorker.exe'
+            - '\TrustedInstaller.exe'
+            - '\msiexec.exe'
+    condition: selection and not filter_installers
+falsepositives:
+    - Windows feature installation and servicing
+    - Software that legitimately registers its own svchost group
+level: medium

@@ -1,0 +1,39 @@
+title: Linux Kernel Module Loaded Manually
+id: 9afc546b-88fb-46e6-acf9-e347069437f0
+status: experimental
+description: |
+    Detects insmod or modprobe run outside boot and device-management lineage.
+
+    Tuning note: kernel module modification is too high-fidelity to suppress by
+    user or by volume threshold. Loading a module always requires root, so a
+    "ignore root" exception disables the rule. Only the known system parents
+    are excluded.
+references:
+    - https://attack.mitre.org/techniques/T1547/006/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.persistence
+    - attack.privilege-escalation
+    - attack.t1547.006
+logsource:
+    product: linux
+    category: process_creation
+detection:
+    selection:
+        Image|endswith:
+            - '/insmod'
+            - '/modprobe'
+            - '/rmmod'
+    filter_system:
+        ParentImage|endswith:
+            - '/systemd'
+            - '/systemd-udevd'
+            - '/systemd-modules-load'
+            - '/dracut'
+            - '/NetworkManager'
+    condition: selection and not filter_system
+falsepositives:
+    - Administrators installing drivers during a change window
+    - Security and backup agents that load their own modules. Exclude by parent image after baselining.
+level: high

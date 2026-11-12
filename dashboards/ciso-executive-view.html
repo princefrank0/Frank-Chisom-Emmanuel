@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CISO Executive View (demo data)</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f4f3f0; --surface: #fcfcfb; --border: #e3e2dd;
+    --text: #0b0b0b; --text-2: #52514e; --text-3: #7a7974; --grid: #e9e8e4;
+    --sev-low: #86b6ef; --sev-med: #2a78d6; --sev-high: #104281;
+    --bar: #2a78d6;
+    --good: #0ca30c; --warning: #fab219; --critical: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #111110; --surface: #1a1a19; --border: #30302d;
+      --text: #f0efec; --text-2: #c3c2b7; --text-3: #8f8e86; --grid: #2a2a28;
+      --sev-low: #184f95; --sev-med: #3987e5; --sev-high: #b7d3f6;
+      --bar: #3987e5;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--text);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+  h1 { font-size: 20px; margin: 0; font-weight: 650; }
+  .demo { font-size: 12px; color: var(--text-2); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; background: var(--surface); }
+  .sub { color: var(--text-2); margin: 0 0 20px; }
+  .grid { display: grid; gap: 12px; }
+  .kpis { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 12px; }
+  .two { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); margin-bottom: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; min-width: 0; }
+  .card h2 { font-size: 13px; font-weight: 600; margin: 0 0 2px; }
+  .card .note { font-size: 12px; color: var(--text-3); margin: 0 0 12px; }
+  .kpi .label { font-size: 12px; color: var(--text-2); }
+  .kpi .value { font-size: 30px; font-weight: 650; letter-spacing: -0.02em; margin: 2px 0; font-variant-numeric: tabular-nums; }
+  .kpi .delta { font-size: 12px; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-2); margin-bottom: 8px; flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 10px; height: 10px; border-radius: 2px; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  svg text { fill: var(--text-2); font-size: 11px; font-variant-numeric: tabular-nums; }
+  svg .val { fill: var(--text); }
+  .hit { fill: transparent; cursor: default; }
+  .hit:hover + .hl, .hl.on { opacity: 1; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); }
+  th { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child, th.num, td.num { white-space: nowrap; }
+  .sev { display: inline-flex; align-items: center; gap: 6px; }
+  details { margin-top: 10px; font-size: 12px; color: var(--text-2); }
+  summary { cursor: pointer; }
+  .scroll { overflow-x: auto; }
+  #tip { position: fixed; pointer-events: none; background: var(--text); color: var(--surface); font-size: 12px;
+    padding: 6px 9px; border-radius: 6px; opacity: 0; transition: opacity .08s; z-index: 10; white-space: nowrap; line-height: 1.5; }
+  footer { margin-top: 20px; font-size: 12px; color: var(--text-3); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CISO Executive View</h1>
+    <span class="demo">Demo data only. No client information.</span>
+  </header>
+  <p class="sub">Layout of the executive security dashboard I design for SIEM deployments: four headline numbers, incident trend, top detections, repeat offenders and incidents on critical assets. Last 8 weeks.</p>
+
+  <section class="grid kpis" id="kpis"></section>
+
+  <section class="grid two">
+    <div class="card">
+      <h2>Incident volume by severity</h2>
+      <p class="note">Security incidents per week</p>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--sev-high)"></i>High</span>
+        <span><i class="sw" style="background:var(--sev-med)"></i>Medium</span>
+        <span><i class="sw" style="background:var(--sev-low)"></i>Low</span>
+      </div>
+      <div id="trend"></div>
+      <details><summary>View as table</summary><div class="scroll" id="trendTable"></div></details>
+    </div>
+    <div class="card">
+      <h2>Security incidents by rule</h2>
+      <p class="note">Top 8 detections, last 30 days</p>
+      <div id="rules"></div>
+    </div>
+  </section>
+
+  <section class="grid two">
+    <div class="card">
+      <h2>Top repeat offenders</h2>
+      <p class="note">Incident sources with the most security incidents, last 30 days</p>
+      <div class="scroll" id="offenders"></div>
+    </div>
+    <div class="card">
+      <h2>Open incidents on critical assets</h2>
+      <p class="note">Active incidents where the reporting device is in the critical asset group</p>
+      <div class="scroll" id="crown"></div>
+    </div>
+  </section>
+
+  <footer>Built by Frank Chisom Emmanuel. All hosts, addresses and figures on this page are fictional.</footer>
+</div>
+<div id="tip" role="status"></div>
+
+<script>
+// ---------- demo data ----------
+const kpis = [
+  { label: 'Open high-severity incidents', value: '7', status: 'warning', note: 'Target: 5 or fewer' },
+  { label: 'Mean time to detect', value: '14 min', status: 'good', note: 'Target: under 30 min' },
+  { label: 'Mean time to respond', value: '3.2 h', status: 'good', note: 'Target: under 4 h' },
+  { label: 'Log source coverage', value: '94%', status: 'critical', note: '11 of 184 sources silent over 24 h' }
+];
+const weeks = ['W1','W2','W3','W4','W5','W6','W7','W8'];
+const trend = { High: [9,12,8,14,11,7,10,7], Medium: [34,41,38,45,36,33,39,31], Low: [62,58,71,66,54,60,57,49] };
+const rules = [
+  ['Excessive failed logons from single source', 86],
+  ['Database data modification from unapproved source', 61],
+  ['Outbound connection to threat intel indicator', 47],
+  ['Linux account properties changed', 39],
+  ['Suspicious PowerShell command line', 33],
+  ['Privileged group membership change', 24],
+  ['Svchost executed outside system path', 12],
+  ['DNS query to cryptomining pool', 9]
+];
+const offenders = [
+  ['WKS-FIN-0142', '198.51.100.42', 31], ['SRV-APP-07', '198.51.100.17', 24],
+  ['WKS-OPS-0088', '198.51.100.88', 19], ['SRV-DB-03', '198.51.100.23', 15],
+  ['WKS-HR-0031', '198.51.100.131', 11]
+];
+const crown = [
+  ['SRV-DB-03', 'Database data modification from unapproved source', 'High', '2 h'],
+  ['SRV-PAY-01', 'Privileged group membership change', 'High', '5 h'],
+  ['SRV-DC-02', 'Excessive failed logons from single source', 'Medium', '9 h'],
+  ['SRV-APP-07', 'Outbound connection to threat intel indicator', 'Medium', '1 d']
+];
+
+// ---------- helpers ----------
+const tip = document.getElementById('tip');
+function showTip(e, html) { tip.innerHTML = html; tip.style.opacity = 1; moveTip(e); }
+function moveTip(e) {
+  const r = tip.getBoundingClientRect();
+  let x = e.clientX + 12, y = e.clientY - r.height - 10;
+  if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 12;
+  if (y < 8) y = e.clientY + 14;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function hideTip() { tip.style.opacity = 0; }
+function bindTip(el, html) {
+  el.addEventListener('mousemove', e => showTip(e, html));
+  el.addEventListener('mouseleave', hideTip);
+  el.addEventListener('focus', () => { const r = el.getBoundingClientRect(); showTip({ clientX: r.left + r.width / 2, clientY: r.top }, html); });
+  el.addEventListener('blur', hideTip);
+}
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, text) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (text != null) n.textContent = text;
+  return n;
+}
+const statusLabel = { good: 'On target', warning: 'Above target', critical: 'Needs action' };
+const sevIcon = { High: '▲', Medium: '◆', Low: '●' };
+
+// ---------- KPI tiles ----------
+document.getElementById('kpis').innerHTML = kpis.map(k => `
+  <div class="card kpi">
+    <div class="label">${k.label}</div>
+    <div class="value">${k.value}</div>
+    <div class="delta"><i class="dot" style="background:var(--${k.status})"></i><b>${statusLabel[k.status]}</b><span>${k.note}</span></div>
+  </div>`).join('');
+
+// ---------- stacked columns ----------
+(function () {
+  const W = 520, H = 250, m = { l: 30, r: 8, t: 8, b: 22 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const totals = weeks.map((_, i) => trend.High[i] + trend.Medium[i] + trend.Low[i]);
+  const max = Math.ceil(Math.max(...totals) / 25) * 25;
+  const y = v => m.t + ih - (v / max) * ih;
+  const band = iw / weeks.length, bw = Math.min(34, band * 0.6);
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Stacked columns of weekly incidents by severity' });
+  for (let t = 0; t <= max; t += 25) {
+    svg.append(el('line', { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t), stroke: 'var(--grid)', 'stroke-width': 1 }));
+    svg.append(el('text', { x: m.l - 6, y: y(t) + 4, 'text-anchor': 'end' }, t));
+  }
+  const order = [['Low', '--sev-low'], ['Medium', '--sev-med'], ['High', '--sev-high']];
+  weeks.forEach((w, i) => {
+    const x = m.l + band * i + (band - bw) / 2;
+    let acc = 0;
+    order.forEach(([s, c], si) => {
+      const v = trend[s][i], y1 = y(acc + v), y0 = y(acc), h = Math.max(0, y0 - y1 - (si < 2 ? 2 : 0));
+      const top = si === 2;
+      const r = top ? 4 : 0;
+      const d = `M${x},${y1 + h} V${y1 + r} Q${x},${y1} ${x + r},${y1} H${x + bw - r} Q${x + bw},${y1} ${x + bw},${y1 + r} V${y1 + h} Z`;
+      svg.append(el('path', { d, fill: `var(${c})` }));
+      acc += v;
+    });
+    svg.append(el('text', { x: x + bw / 2, y: H - 6, 'text-anchor': 'middle' }, w));
+    const hit = el('rect', { x: m.l + band * i, y: m.t, width: band, height: ih, class: 'hit', tabindex: 0, 'aria-label': `${w}: ${totals[i]} incidents` });
+    bindTip(hit, `<b>${w}</b> · ${totals[i]} incidents<br>High ${trend.High[i]} · Medium ${trend.Medium[i]} · Low ${trend.Low[i]}`);
+    svg.append(hit);
+  });
+  document.getElementById('trend').append(svg);
+  document.getElementById('trendTable').innerHTML =
+    `<table><thead><tr><th>Week</th><th class="num">High</th><th class="num">Medium</th><th class="num">Low</th><th class="num">Total</th></tr></thead><tbody>` +
+    weeks.map((w, i) => `<tr><td>${w}</td><td class="num">${trend.High[i]}</td><td class="num">${trend.Medium[i]}</td><td class="num">${trend.Low[i]}</td><td class="num">${totals[i]}</td></tr>`).join('') +
+    `</tbody></table>`;
+})();
+
+// ---------- horizontal bars ----------
+(function () {
+  const W = 520, row = 30, m = { t: 2, r: 34 };
+  const H = rules.length * row + m.t;
+  const max = Math.max(...rules.map(r => r[1]));
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Bar chart of incidents by detection rule' });
+  rules.forEach(([name, v], i) => {
+    const yy = m.t + i * row, w = (v / max) * (W - m.r);
+    svg.append(el('text', { x: 0, y: yy + 11, class: 'val' }, name));
+    const bh = 8, by = yy + 16;
+    svg.append(el('path', { d: `M0,${by} H${w - 4} Q${w},${by} ${w},${by + 4} Q${w},${by + bh} ${w - 4},${by + bh} H0 Z`, fill: 'var(--bar)' }));
+    svg.append(el('text', { x: w + 6, y: by + 8, class: 'val' }, v));
+    const hit = el('rect', { x: 0, y: yy, width: W, height: row, class: 'hit', tabindex: 0, 'aria-label': `${name}: ${v} incidents` });
+    bindTip(hit, `<b>${name}</b><br>${v} incidents`);
+    svg.append(hit);
+  });
+  document.getElementById('rules').append(svg);
+})();
+
+// ---------- tables ----------
+document.getElementById('offenders').innerHTML =
+  `<table><thead><tr><th>Host</th><th>Address</th><th class="num">Incidents</th></tr></thead><tbody>` +
+  offenders.map(o => `<tr><td>${o[0]}</td><td>${o[1]}</td><td class="num">${o[2]}</td></tr>`).join('') + `</tbody></table>`;
+document.getElementById('crown').innerHTML =
+  `<table><thead><tr><th>Asset</th><th>Incident</th><th>Severity</th><th class="num">Open for</th></tr></thead><tbody>` +
+  crown.map(c => `<tr><td>${c[0]}</td><td>${c[1]}</td><td><span class="sev"><span aria-hidden="true">${sevIcon[c[2]]}</span>${c[2]}</span></td><td class="num">${c[3]}</td></tr>`).join('') + `</tbody></table>`;
+</script>
+</body>
+</html>

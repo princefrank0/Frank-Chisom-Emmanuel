@@ -1,0 +1,29 @@
+title: Svchost Executed From Outside System Directories
+id: 9f649b93-e643-4307-9b9b-483909d846e7
+status: experimental
+description: |
+    Detects a process named svchost.exe running from any directory other than
+    System32 or SysWOW64. Seen in a cryptominer case where the miner payload was
+    dropped as "C:\Program Files\Common Files\System\svchost.exe".
+references:
+    - https://attack.mitre.org/techniques/T1036/005/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.defense-evasion
+    - attack.t1036.005
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|endswith: '\svchost.exe'
+    filter_legit:
+        Image|startswith:
+            - 'C:\Windows\System32\'
+            - 'C:\Windows\SysWOW64\'
+            - 'C:\Windows\WinSxS\'
+    condition: selection and not filter_legit
+falsepositives:
+    - Unlikely
+level: high

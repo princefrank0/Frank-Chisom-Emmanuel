@@ -1,0 +1,45 @@
+title: Linux Timestomping With Touch
+id: 6a01794a-ef55-45e6-8bfa-84d9630ae1f7
+status: experimental
+description: |
+    Detects touch being used to set an explicit timestamp or copy one from a
+    reference file.
+
+    Tuning note: this rule is tuned on process lineage, not on user. Suppressing
+    all root activity removes exactly the cases that matter, because an attacker
+    who needs to timestomp is usually root already. Package managers and build
+    tools are excluded by parent process instead.
+references:
+    - https://attack.mitre.org/techniques/T1070/006/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.defense-evasion
+    - attack.t1070.006
+logsource:
+    product: linux
+    category: process_creation
+detection:
+    selection_img:
+        Image|endswith: '/touch'
+    selection_flags:
+        CommandLine|contains:
+            - ' -t '
+            - ' -d '
+            - ' -r '
+            - ' --date'
+            - ' --reference'
+    filter_parents:
+        ParentImage|endswith:
+            - '/dpkg'
+            - '/rpm'
+            - '/yum'
+            - '/dnf'
+            - '/apt'
+            - '/apt-get'
+            - '/make'
+            - '/logrotate'
+    condition: selection_img and selection_flags and not filter_parents
+falsepositives:
+    - Build pipelines and backup tools that preserve timestamps
+level: medium

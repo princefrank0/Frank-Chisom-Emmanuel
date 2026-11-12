@@ -1,0 +1,31 @@
+title: Svchost Loads Unsigned DLL From System32
+id: 8a6c8c5e-da2b-4cb7-9879-39fe9ce6f2f4
+status: experimental
+description: |
+    Detects svchost.exe loading an unsigned DLL from System32. Genuine service DLLs
+    shipped with Windows are Microsoft-signed. A malicious ServiceDll dropped into
+    System32 with a name that imitates a runtime library will pass path-based
+    allowlists but fail the signature check.
+references:
+    - https://attack.mitre.org/techniques/T1543/003/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.persistence
+    - attack.privilege-escalation
+    - attack.t1543.003
+    - attack.defense-evasion
+    - attack.t1036.005
+logsource:
+    product: windows
+    category: image_load
+detection:
+    selection:
+        Image|endswith: '\svchost.exe'
+        ImageLoaded|startswith: 'C:\Windows\System32\'
+        ImageLoaded|endswith: '.dll'
+        Signed: 'false'
+    condition: selection
+falsepositives:
+    - Third-party service DLLs from hardware vendors that are installed unsigned. Baseline and exclude by hash, not by file name.
+level: high

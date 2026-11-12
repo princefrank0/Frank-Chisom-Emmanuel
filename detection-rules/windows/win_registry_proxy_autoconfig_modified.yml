@@ -1,0 +1,37 @@
+title: System Proxy Or PAC Configuration Modified
+id: 2c3abfaa-c8c5-447f-bc07-22104024bdc5
+status: experimental
+description: |
+    Detects changes to the WinINET proxy settings (AutoConfigURL, ProxyServer,
+    ProxyEnable). Every Chromium-based engine on a host honours the Windows
+    system proxy, so a hostile PAC file or local proxy can inject content into
+    Chrome, Edge, WebView2, Electron apps and embedded browsers at once.
+references:
+    - https://attack.mitre.org/techniques/T1090/
+    - https://attack.mitre.org/techniques/T1557/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.command-and-control
+    - attack.t1090
+    - attack.collection
+    - attack.t1557
+logsource:
+    product: windows
+    category: registry_set
+detection:
+    selection:
+        TargetObject|contains: '\Software\Microsoft\Windows\CurrentVersion\Internet Settings\'
+        TargetObject|endswith:
+            - '\AutoConfigURL'
+            - '\ProxyServer'
+            - '\ProxyEnable'
+    filter_policy:
+        Image|endswith:
+            - '\svchost.exe'
+            - '\gpscript.exe'
+    condition: selection and not filter_policy
+falsepositives:
+    - Users changing proxy settings manually
+    - VPN clients and corporate proxy agents. Exclude by signed image path after baselining.
+level: medium

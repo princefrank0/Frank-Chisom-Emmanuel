@@ -1,0 +1,48 @@
+title: Database Data Modification From Unapproved Source
+id: 8232117f-78d7-4e50-8d05-dc3b1a1b1533
+status: experimental
+description: |
+    Detects INSERT, UPDATE, DELETE, TRUNCATE and schema changes against
+    monitored MSSQL databases when the source address is not an approved
+    application server, as recorded by Imperva SecureSphere DAM audit events.
+
+    Implementation note: keep the raw event as a triggered attribute. Bind
+    variable values (CEF cs17) are not parsed into a named field by default, so
+    the values actually written exist only in the raw CEF line.
+
+    Field mapping (CEF to Sigma): duser = DatabaseUser, src = SourceIp,
+    cs10 = SourceApplication, cs16 = ParsedQuery.
+references:
+    - https://attack.mitre.org/techniques/T1565/001/
+author: Frank Chisom Emmanuel
+date: 2026-11-12
+tags:
+    - attack.impact
+    - attack.t1565.001
+pci_dss:
+    - '10.2.1.1'
+    - '10.2.1.2'
+    - '10.4.1.1'
+    - '7.2.6'
+logsource:
+    product: imperva
+    service: securesphere_dam
+detection:
+    selection:
+        ParsedQuery|startswith:
+            - 'insert '
+            - 'update '
+            - 'delete '
+            - 'truncate '
+            - 'drop '
+            - 'alter '
+    filter_app_servers:
+        # Replace with the approved application server addresses
+        SourceIp:
+            - '192.0.2.20'
+            - '192.0.2.21'
+    condition: selection and not filter_app_servers
+falsepositives:
+    - New application servers not yet added to the approved list
+    - DBA changes made under an approved change record
+level: high
