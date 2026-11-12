@@ -2,7 +2,7 @@
 
 **Tier 3 SOC Analyst & Technical Lead** | Detection Engineering · DFIR · SIEM Architecture · Threat Intelligence · Security Assessments
 
-Nigeria-based security practitioner at [SHELT](https://www.shelt.com), a cybersecurity-as-a-service firm headquartered in Cyprus. I lead technical delivery for managed SOC operations and security assessments across enterprise and banking clients.
+Nigeria-based security practitioner with over six years of experience, currently at [SHELT](https://www.shelt.com), a cybersecurity-as-a-service firm headquartered in Cyprus. I lead technical delivery for managed SOC operations and security assessments across enterprise and banking clients.
 
 [Portfolio site](https://princefrank0.github.io/Frank-Chisom-Emmanuel/) · [LinkedIn](https://www.linkedin.com/in/frank-chisom-emmanuel/) · [Email](mailto:emmanuel.frankchisom@gmail.com)
 
@@ -31,6 +31,25 @@ Nigeria-based security practitioner at [SHELT](https://www.shelt.com), a cyberse
 | **Threat intelligence & hunting** | Hypothesis-driven hunts, MITRE ATT&CK mapping, CTI analysis of ransomware and data-leak claims, client advisories |
 | **Security assessments** | Enterprise risk and maturity assessments, infrastructure security reviews, cloud and AI agent assessment scoping |
 | **SOC leadership** | Tier role and workflow design, SLA and RACI documentation, analyst hiring and interviewing |
+
+---
+
+## Experience
+
+**Tier 3 SOC Analyst and Technical Lead** · SHELT · 2026 – present
+Senior escalation point for managed SOC operations across banking and enterprise clients: advanced detection, forensic investigation, incident response, and technical lead on assessments and SIEM projects.
+
+**Technical Support Specialist and Cybersecurity Project Engineer** · MAG Technologies Systems Limited · 2023 – 2026
+Deployed and managed enterprise security platforms from proof of concept to post-implementation support:
+
+- **Cymulate** — breach and attack simulation for continuous threat validation
+- **Velotix** — AI-based data governance and access control
+- **FlowSec** — DDoS protection and traffic mitigation
+- **Validit AI** — AI-driven fraud prevention and verification
+- **Wazuh** — SOC-as-a-service: SIEM and file integrity monitoring
+- **Utimaco HSM** — HSM-as-a-service for cryptographic key management
+
+Also led ransomware protection, API security, brand protection and OSINT initiatives; ran PCI DSS vulnerability scans and awareness training; maintained ISO 27001, NDPR and PCI DSS audit evidence; and introduced project tracking and escalation systems that cut incident resolution time by 30%.
 
 ---
 
@@ -84,14 +103,16 @@ Nigeria-based security practitioner at [SHELT](https://www.shelt.com), a cyberse
 
 ## Tools and technologies
 
-**SIEM / SOAR:** FortiSIEM, Microsoft Sentinel, Wazuh
-**EDR / Endpoint:** CrowdStrike Falcon, Trend Micro, Microsoft Defender, Microsoft Intune
-**Network:** FortiGate (HA), Check Point, Cisco Firepower
-**Data security:** Imperva SecureSphere DAM
-**Cloud / Identity:** Microsoft Entra ID, Azure, Microsoft 365, AWS KMS
-**Offensive / Simulation:** Atomic Red Team, Metasploit, Nmap, Burp Suite, Kali Linux
-**Automation:** Ansible, rsyslog, Batch, React
-**Frameworks:** MITRE ATT&CK, PCI DSS v4.0, NIST CSF 2.0, NIST SP 800-53, NIST IR 8374, ISO/IEC 27001, CIS Benchmarks, CMMI
+**SIEM / SOAR:** FortiSIEM, Microsoft Sentinel, Wazuh  
+**EDR / Endpoint:** CrowdStrike Falcon, Trend Micro, Microsoft Defender, Microsoft Intune  
+**Network:** FortiGate (HA), Check Point, Cisco Firepower  
+**Breach and attack simulation:** Cymulate  
+**Data security:** Imperva SecureSphere DAM, Velotix, Utimaco HSM  
+**Fraud prevention / DDoS:** Validit AI, SumSub, FlowSec  
+**Cloud / Identity:** Microsoft Entra ID, Azure, Microsoft 365, AWS KMS  
+**Offensive / Simulation:** Atomic Red Team, Metasploit, Nmap, Burp Suite, Kali Linux  
+**Automation:** Ansible, rsyslog, Batch, React  
+**Frameworks:** MITRE ATT&CK, PCI DSS v4.0, NIST CSF 2.0, NIST SP 800-53, NIST IR 8374, ISO/IEC 27001, CIS Benchmarks, CMMI  
 
 ---
 
